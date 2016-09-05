@@ -1,0 +1,8 @@
+language: python
+python:
+  - "2.7"
+install:
+  - "pip install -Ur requirements-test.txt"
+script: "py.test tests/ -v --cov navmazing"
+after_success:
+- coveralls
