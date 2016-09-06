@@ -3,6 +3,11 @@
    :alt: Build Status
    :align: left
    :target: https://travis-ci.org/RedHatQE/navmazing
+.. image:: https://coveralls.io/repos/RedHatQE/navmazing/badge.svg?branch=master&service=github
+   :scale: 50 %
+   :alt: Coverage Status
+   :align: left
+   :target: https://coveralls.io/github/RedHatQE/navmazing?branch=master
 
 navmazing
 =========
