@@ -140,3 +140,9 @@ def test_bad_am_i_here():
     del state[:]
     a = ObjectA
     navigate.navigate(a, 'BadStepReturn')
+
+
+def test_siebling_descriptor_access():
+    instance = ObjectA('ObjectA')
+    assert instance.prerequisite.obj is instance
+    assert ObjectA.prerequisite.obj is None
