@@ -143,6 +143,4 @@ def test_bad_am_i_here():
 
 
 def test_siebling_descriptor_access():
-    instance = ObjectA('ObjectA')
-    assert instance.prerequisite.obj is instance
-    assert ObjectA.prerequisite.obj is None
+    assert StepOne.prerequisite.obj is None
