@@ -29,7 +29,7 @@ An example is below::
 """
 
 
-class NavigationException(Exception):
+class NavigationDestinationNotFound(Exception):
     """Simple Exception when navigations can't be found"""
     def __init__(self, name, cls):
         self.name = name
@@ -38,6 +38,16 @@ class NavigationException(Exception):
     def __str__(self):
         return "Couldn't find the destination [{}] with the given class [{}]".format(
             self.name, self.cls)
+
+
+class NavigationTriesExceeded(Exception):
+    """Simple Exception when navigations can't be found"""
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return "Navigation failed to reach [{}] in the specificed tries".format(
+            self.name)
 
 
 class Navigate(object):
@@ -82,7 +92,7 @@ class Navigate(object):
             except KeyError:
                 continue
         else:
-            raise NavigationException(name, cls.__name__)
+            raise NavigationDestinationNotFound(name, cls.__name__)
 
 
 class NavigateToSibling(object):
@@ -141,7 +151,7 @@ class NavigateStep(object):
 
     def pre_navigate(self, _tries):
         if _tries > self._default_tries:
-            raise Exception("Couldn't do the nav in the number of tries")
+            raise NavigationTriesExceeded(self._name)
         else:
             return
 

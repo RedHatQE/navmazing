@@ -1,4 +1,5 @@
-from navmazing import Navigate, NavigateStep, NavigateToSibling, NavigationException
+from navmazing import (Navigate, NavigateStep, NavigateToSibling,
+    NavigationTriesExceeded, NavigationDestinationNotFound)
 import pytest
 
 navigate = Navigate()
@@ -39,6 +40,22 @@ class StepTwoToo(NavigateStep):
 
     def step(self):
         state.append(self._name)
+
+
+@navigate.register(ObjectA, 'BadStep')
+class BadStep(NavigateStep):
+    prerequisite = NavigateToSibling('StepZero')
+
+    def step(self):
+        1 / 0
+
+
+@navigate.register(ObjectA, 'BadStepReturn')
+class BadStepReturn(NavigateStep):
+    prerequisite = NavigateToSibling('StepZero')
+
+    def am_i_here(self):
+        1 / 0
 
 
 @navigate.register(ObjectA, 'StepOne')
@@ -87,11 +104,39 @@ def test_bad_step_exception():
     del state[:]
     a = ObjectA
     b = ObjectB(ObjectA, a)
-    with pytest.raises(NavigationException):
+    with pytest.raises(NavigationDestinationNotFound):
         navigate.navigate(b, 'Weird')
 
 
 def test_bad_object_exception():
     c = ObjectC('ObjectC')
-    with pytest.raises(NavigationException):
-        navigate.navigate(c, 'NotHere')
+    with pytest.raises(NavigationDestinationNotFound):
+        try:
+            navigate.navigate(c, 'NotHere')
+        except NavigationDestinationNotFound as e:
+            print e
+            raise
+
+
+def test_bad_step():
+    del state[:]
+    a = ObjectA('ObjectA')
+    with pytest.raises(NavigationTriesExceeded):
+        try:
+            navigate.navigate(a, 'BadStep')
+        except NavigationTriesExceeded as e:
+            print e
+            raise
+
+
+def test_no_nav():
+    a = ObjectA
+    b = ObjectB(ObjectA, a)
+    navigate.navigate(b, 'StepTwo')
+    assert state == ['StepZero', 'StepOne', 'StepTwo']
+
+
+def test_bad_am_i_here():
+    del state[:]
+    a = ObjectA
+    navigate.navigate(a, 'BadStepReturn')
