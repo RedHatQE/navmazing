@@ -17,6 +17,12 @@ class ObjectB(object):
         self.parent = parent
 
 
+class ObjectC(object):
+    def __init__(self, name, parent=None):
+        self.name = name
+        self.parent = parent
+
+
 @navigate.register(ObjectB)
 class StepTwoAgain(NavigateStep):
     def prerequisite(self):
@@ -77,9 +83,15 @@ def test_navigation_to_non_named_step():
     assert state == ['StepZero', 'StepOne', 'StepTwoAgain']
 
 
-def test_exception():
+def test_bad_step_exception():
     del state[:]
     a = ObjectA
     b = ObjectB(ObjectA, a)
     with pytest.raises(NavigationException):
         navigate.navigate(b, 'Weird')
+
+
+def test_bad_object_exception():
+    c = ObjectC('ObjectC')
+    with pytest.raises(NavigationException):
+        navigate.navigate(c, 'NotHere')
