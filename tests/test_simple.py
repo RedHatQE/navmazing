@@ -114,7 +114,8 @@ def test_bad_object_exception():
         try:
             navigate.navigate(c, 'NotHere')
         except NavigationDestinationNotFound as e:
-            print e
+            assert str(e) == "Couldn't find the destination [{}] with the given class [{}]".format(
+                'NotHere', 'ObjectC')
             raise
 
 
@@ -125,7 +126,8 @@ def test_bad_step():
         try:
             navigate.navigate(a, 'BadStep')
         except NavigationTriesExceeded as e:
-            print e
+            assert str(e) == "Navigation failed to reach [{}] in the specificed tries".format(
+                'BadStep')
             raise
 
 
