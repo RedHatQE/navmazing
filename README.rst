@@ -1,3 +1,9 @@
+.. image:: https://travis-ci.org/RedHatQE/navmazing.svg
+   :scale: 50 %
+   :alt: Build Status
+   :align: left
+   :target: https://travis-ci.org/RedHatQE/navmazing
+
 navmazing
 =========
 
