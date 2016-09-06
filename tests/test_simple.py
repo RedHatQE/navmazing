@@ -1,4 +1,5 @@
-from navmazing import Navigate, NavigateStep, NavigateToSibling
+from navmazing import Navigate, NavigateStep, NavigateToSibling, NavigationException
+import pytest
 
 navigate = Navigate()
 
@@ -74,3 +75,11 @@ def test_navigation_to_non_named_step():
     b = ObjectB(ObjectA, a)
     navigate.navigate(b, 'StepTwoAgain')
     assert state == ['StepZero', 'StepOne', 'StepTwoAgain']
+
+
+def test_exception():
+    del state[:]
+    a = ObjectA
+    b = ObjectB(ObjectA, a)
+    with pytest.raises(NavigationException):
+        navigate.navigate(b, 'Weird')
