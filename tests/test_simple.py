@@ -1,5 +1,5 @@
 from navmazing import (Navigate, NavigateStep, NavigateToSibling,
-    NavigationTriesExceeded, NavigationDestinationNotFound)
+    NavigationTriesExceeded, NavigationDestinationNotFound, NavigateToAttribute)
 import pytest
 
 navigate = Navigate()
@@ -26,8 +26,7 @@ class ObjectC(object):
 
 @navigate.register(ObjectB)
 class StepTwoAgain(NavigateStep):
-    def prerequisite(self):
-        self.navigate_obj.navigate(self.obj.parent, 'StepOne')
+    prerequisite = NavigateToAttribute('parent', 'StepOne')
 
     def step(self):
         state.append(self._name)
