@@ -27,6 +27,7 @@ An example is below::
             click('All button')
 
 """
+from operator import attrgetter
 
 
 class NavigationDestinationNotFound(Exception):
@@ -116,6 +117,34 @@ class NavigateToSibling(object):
 
     def __call__(self):
         self.obj.navigate_obj.navigate(self.obj.obj, self.target)
+
+
+class NavigateToAttribute(object):
+    """This is a helper descriptor for destinations which are linked to an attribute of the object.
+
+    For instance, imagine you have an object that has an attribute(parent) which has a 'ViewAll',
+    destination that needs to be visited before you can click on 'New'. In this instance,
+    you would need to make the 'New' destination use 'ViewAll' as a prerequisite. As this
+    would need no other special input, we can use NavigateToAttribute as a helper, supplying
+    only the name of the attribute which stores the object to be used in the navigation,
+    and the destination name. This will set prerequisite to be a callable that will navigate
+    to the prerequisite step.
+    """
+    def __init__(self, attr_name, target, obj=None):
+        self.target = target
+        self.obj = obj
+        self.attr_name = attr_name
+        self._get_attr = attrgetter(attr_name)
+
+    def __get__(self, obj, owner):
+        if self.obj is None:
+            return type(self)(self.attr_name, self.target, obj or owner)
+        else:
+            return self
+
+    def __call__(self):
+        attr = self._get_attr(self.obj.obj)
+        self.obj.navigate_obj.navigate(attr, self.target)
 
 
 class NavigateStep(object):
