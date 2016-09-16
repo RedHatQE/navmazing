@@ -1,0 +1,31 @@
+digraph {
+    label="Navmazing Step Flowchart";
+
+    start [shape="box", style="rounded", label="navigate(object, Destination)"]
+    pre_navigate [shape="box", style="rounded", label=<pre_navigate()<BR/><BR/><I>Check for errors on screen etc...</I>>]
+    am_i_here [shape="diamond", style="", label=<am_i_here()>]
+    try_step [shape="diamond", style="", label=<step()>]
+    resetter [shape="box", style="rounded", label=<resetter()<BR/><BR/><I>Reset some widgets</I>>]
+    return [shape="box", style="rounded"]
+    prerequisite [shape="box", style="rounded", label=<prerequisite()<BR/><BR/><I>Often calls another<BR/>navigate(object, Destination)</I>>]
+    do_nav [shape="box", style="rounded", label="do_nav()"]
+    go [shape="box", style="rounded", label="go()"]
+    post_navigate [shape="box", style="rounded", label="post_navigate()"]
+
+    start -> go
+    go -> pre_navigate;
+    pre_navigate -> am_i_here[label="tries <= default"];
+    pre_navigate -> raise_exception[label="tries > default"];
+    raise_exception
+
+    am_i_here -> resetter[label="yes"];
+    am_i_here -> prerequisite[label="no or exception"];
+    prerequisite -> do_nav;
+    do_nav -> try_step;
+    try_step -> resetter[label="no_error"];
+    try_step -> go[label="on_error tries++"];
+    resetter -> post_navigate;
+    post_navigate -> return;
+
+    {rank=same; return raise_exception}
+}
