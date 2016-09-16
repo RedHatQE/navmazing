@@ -166,6 +166,9 @@ class NavigateStep(object):
     def am_i_here(self):
         return False
 
+    def resetter(self):
+        pass
+
     def prerequisite(self):
         pass
 
@@ -193,15 +196,18 @@ class NavigateStep(object):
         print("NAVIGATE: Checking if already at {}".format(self._name))
         try:
             if self.am_i_here():
+                self.resetter()
                 print("NAVIGATE: Already at {}".format(self._name))
                 return
         except Exception as e:
-            print("NAVIGATE: Exception raised [{}] whilst checking if already at {}".format(
-                e, self._name))
+            print("NAVIGATE: Exception raised [{}] whilst checking if already at {}"
+                "or performing resetter step".format(
+                    e, self._name))
         print("NAVIGATE: I'm not at {}".format(self._name))
         self.prerequisite()
         print("NAVIGATE: Heading to destination {}".format(self._name))
         self.do_nav(_tries)
+        self.resetter()
         self.post_navigate(_tries)
 
 navigate = Navigate()
