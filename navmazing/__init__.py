@@ -194,19 +194,19 @@ class NavigateStep(object):
         _tries += 1
         self.pre_navigate(_tries)
         print("NAVIGATE: Checking if already at {}".format(self._name))
+        here = False
         try:
-            if self.am_i_here():
-                self.resetter()
-                print("NAVIGATE: Already at {}".format(self._name))
-                return
+            here = self.am_i_here()
         except Exception as e:
-            print("NAVIGATE: Exception raised [{}] whilst checking if already at {}"
-                "or performing resetter step".format(
-                    e, self._name))
-        print("NAVIGATE: I'm not at {}".format(self._name))
-        self.prerequisite()
-        print("NAVIGATE: Heading to destination {}".format(self._name))
-        self.do_nav(_tries)
+            print("NAVIGATE: Exception raised [{}] whilst checking if already at {}".format(
+                e, self._name))
+        if here:
+            print("NAVIGATE: Already at {}".format(self._name))
+        else:
+            print("NAVIGATE: I'm not at {}".format(self._name))
+            self.prerequisite()
+            print("NAVIGATE: Heading to destination {}".format(self._name))
+            self.do_nav(_tries)
         self.resetter()
         self.post_navigate(_tries)
 
