@@ -96,6 +96,11 @@ class Navigate(object):
             raise NavigationDestinationNotFound(name, cls.__name__)
 
     def list_destinations(self, cls_or_obj):
+        """Lists all available destinations for a given object
+
+        This function lists all available destinations for a given object. If the object
+        overrides a destination, only the overridden one will be displayed.
+        """
         destinations = set()
         cls = type(cls_or_obj) if not isinstance(cls_or_obj, type) else cls_or_obj
         for _class in cls.__mro__[::-1]:
@@ -169,37 +174,75 @@ class NavigateStep(object):
     _default_tries = 3
 
     def __init__(self, obj, navigate_obj):
+        """ NavigateStep object.
+
+        A NavigateStep object should always recieve the object it is linked to
+        and this is stored in the obj attribute. The navigate_obj is the Navigate() instance
+        that the destination is registered against. This allows it to navigate inside pre-requisites
+        using the NavigateToSibling and NavigateToAttribute helpers described above.
+        """
         self.obj = obj
         self.navigate_obj = navigate_obj
 
     def am_i_here(self):
+        """Describes if the navigation is already at the requested destination.
+
+        This is a default and is generally overridden.
+        """
         return False
 
     def resetter(self):
+        """Describes any steps required to reset the view after navigating or if already there.
+
+        This is a default and is generally overridden.
+        """
         pass
 
     def prerequisite(self):
+        """Describes a step that must be carried our prior to this one.
+
+        This often calls a previous navigate_to, often using one of the helpers, NavigateToSibling
+        which will navigate to a given destination using the same object, or NavigateToAttribute
+        which will navigate to a destination against an object describe by the attribute of the
+        parent object.
+
+        This is a default and is generally overridden.
+        """
         pass
 
     def step(self):
+        """Describes the work to be done to get to the destination after the prequisite is met.
+
+        This is a default and is generally overridden.
+        """
         return
 
     def do_nav(self, _tries):
+        """Describes how the navigation should take place."""
         try:
             self.step()
         except:
             self.go(_tries)
 
     def pre_navigate(self, _tries):
+        """Describes steps that takes place before any prerequisite or navigation takes place.
+
+        This is a default and is generally overridden.
+        """
         if _tries > self._default_tries:
             raise NavigationTriesExceeded(self._name)
         else:
             return
 
     def post_navigate(self, _tries):
+        """Describes steps that takes place before any prerequisite after navigation takes place.
+
+        This is a default and is generally overridden.
+        """
         return
 
     def go(self, _tries=0):
+        """Describes the flow of navigation."""
         _tries += 1
         self.pre_navigate(_tries)
         print("NAVIGATE: Checking if already at {}".format(self._name))
