@@ -141,3 +141,8 @@ def test_bad_am_i_here():
     del state[:]
     a = ObjectA
     navigate.navigate(a, 'BadStepReturn')
+
+
+def test_list_destinations():
+    dests = navigate.list_destinations(ObjectA)
+    assert set(['StepZero', 'BadStepReturn', 'BadStep', 'StepOne']) == dests
