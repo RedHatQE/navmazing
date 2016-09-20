@@ -95,6 +95,15 @@ class Navigate(object):
         else:
             raise NavigationDestinationNotFound(name, cls.__name__)
 
+    def list_destinations(self, cls_or_obj):
+        destinations = set()
+        cls = type(cls_or_obj) if not isinstance(cls_or_obj, type) else cls_or_obj
+        for _class in cls.__mro__[::-1]:
+            for the_class, name in self.dest_dict:
+                if the_class == _class:
+                    destinations.add(name)
+        return destinations
+
 
 class NavigateToSibling(object):
     """This is a helper descriptor for navigation destinations which are linked to the same class.
