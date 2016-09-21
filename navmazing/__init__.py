@@ -27,6 +27,7 @@ An example is below::
             click('All button')
 
 """
+import inspect
 from operator import attrgetter
 
 
@@ -85,15 +86,18 @@ class Navigate(object):
 
         If we exhaust the MRO and we have still not found a match, we raise an exception.
         """
-        cls = type(cls_or_obj) if not isinstance(cls_or_obj, type) else cls_or_obj
-        for _class in cls.__mro__:
+        cls = type(cls_or_obj) if not inspect.isclass(cls_or_obj) else cls_or_obj
+        for class_ in cls.__mro__:
             try:
-                self.dest_dict[_class, name](cls_or_obj, self).go()
-                break
+                nav = self.dest_dict[class_, name]
             except KeyError:
                 continue
+            else:
+                break
         else:
             raise NavigationDestinationNotFound(name, cls.__name__)
+
+        return nav(cls_or_obj, self).go()
 
     def list_destinations(self, cls_or_obj):
         """Lists all available destinations for a given object
