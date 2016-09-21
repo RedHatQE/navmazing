@@ -69,6 +69,7 @@ class Navigate(object):
             destination_name = name or obj.__name__
             obj._name = destination_name
             self.dest_dict[cls, destination_name] = obj
+            return obj
         return f
 
     def navigate(self, cls_or_obj, name):
