@@ -107,14 +107,29 @@ def test_bad_step_exception():
         navigate.navigate(b, 'Weird')
 
 
+def test_bad_step_multi():
+    del state[:]
+    a = ObjectA
+    b = ObjectB(ObjectA, a)
+    with pytest.raises(NavigationDestinationNotFound):
+        try:
+            navigate.navigate(b, 'Whoop')
+        except NavigationDestinationNotFound as e:
+            assert str(e) == ("Couldn't find the destination [{}] with the given class [{}] "
+                "the following were available [{}]").format(
+                    'Whoop', 'ObjectB', ", ".join(sorted(["StepTwo, StepTwoAgain"])))
+            raise
+
+
 def test_bad_object_exception():
     c = ObjectC('ObjectC')
     with pytest.raises(NavigationDestinationNotFound):
         try:
             navigate.navigate(c, 'NotHere')
         except NavigationDestinationNotFound as e:
-            assert str(e) == "Couldn't find the destination [{}] with the given class [{}]".format(
-                'NotHere', 'ObjectC')
+            assert str(e) == ("Couldn't find the destination [{}] with the given class [{}] "
+                "the following were available [{}]").format(
+                    'NotHere', 'ObjectC', "")
             raise
 
 

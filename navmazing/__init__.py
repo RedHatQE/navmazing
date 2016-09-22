@@ -33,13 +33,15 @@ from operator import attrgetter
 
 class NavigationDestinationNotFound(Exception):
     """Simple Exception when navigations can't be found"""
-    def __init__(self, name, cls):
+    def __init__(self, name, cls, possibilities):
         self.name = name
         self.cls = cls
+        self.possibilities = possibilities
 
     def __str__(self):
-        return "Couldn't find the destination [{}] with the given class [{}]".format(
-            self.name, self.cls)
+        return ("Couldn't find the destination [{}] with the given class [{}]"
+            " the following were available [{}]").format(
+            self.name, self.cls, ", ".join(sorted(list(self.possibilities))))
 
 
 class NavigationTriesExceeded(Exception):
@@ -96,7 +98,8 @@ class Navigate(object):
             else:
                 break
         else:
-            raise NavigationDestinationNotFound(name, cls.__name__)
+            raise NavigationDestinationNotFound(name, cls.__name__,
+                self.list_destinations(cls))
 
         return nav(cls_or_obj, self).go()
 
