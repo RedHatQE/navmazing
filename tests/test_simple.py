@@ -1,5 +1,7 @@
-from navmazing import (Navigate, NavigateStep, NavigateToSibling,
-    NavigationTriesExceeded, NavigationDestinationNotFound, NavigateToAttribute)
+from navmazing import (
+    Navigate, NavigateStep, NavigateToSibling,
+    NavigationTriesExceeded, NavigationDestinationNotFound, NavigateToAttribute,
+    NavigateToObject)
 import pytest
 
 navigate = Navigate()
@@ -75,6 +77,15 @@ class StepZero(NavigateStep):
         state.append(self._name)
 
 
+@navigate.register(ObjectB, 'NeedA')
+class NeedA(NavigateStep):
+
+    prerequisite = NavigateToObject(ObjectA, 'StepOne')
+
+    def step(self):
+        state.append(self._name)
+
+
 def test_navigation_to_instance():
     del state[:]
     a = ObjectA('ObjectA')
@@ -117,7 +128,7 @@ def test_bad_step_multi():
         except NavigationDestinationNotFound as e:
             assert str(e) == ("Couldn't find the destination [{}] with the given class [{}] "
                 "the following were available [{}]").format(
-                    'Whoop', 'ObjectB', ", ".join(sorted(["StepTwo, StepTwoAgain"])))
+                    'Whoop', 'ObjectB', ", ".join(sorted(["NeedA", "StepTwo, StepTwoAgain"])))
             raise
 
 
@@ -161,3 +172,10 @@ def test_bad_am_i_here():
 def test_list_destinations():
     dests = navigate.list_destinations(ObjectA)
     assert set(['StepZero', 'BadStepReturn', 'BadStep', 'StepOne']) == dests
+
+
+def test_navigate_to_object():
+    del state[:]
+    b = ObjectB('a', 'a')
+    navigate.navigate(b, 'NeedA')
+    assert state == ['StepZero', 'StepOne', 'NeedA']
