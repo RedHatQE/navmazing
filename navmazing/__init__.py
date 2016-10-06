@@ -118,6 +118,30 @@ class Navigate(object):
         return destinations
 
 
+class NavigateToObject(object):
+    """This is a helper descriptor for navigation destinations which are on another class/object.
+
+    For instance, imagine you have a different object that has a 'ViewAll', destination that
+    needs to be visited before you can click on 'New'. In this instance, you would need to make the
+    'New' destination use 'ViewAll' as a prerequisite. As this would need no other special
+    input, we can use NavigateToObject as a helper. This will set prerequisite to be a
+    callable that will navigate to the prerequisite step on the other object.
+    """
+    def __init__(self, other_obj, target, obj=None):
+        self.target = target
+        self.obj = obj
+        self.other_obj = other_obj
+
+    def __get__(self, obj, owner):
+        if self.obj is None:
+            return type(self)(self.other_obj, self.target, obj or owner)
+        else:
+            return self
+
+    def __call__(self):
+        self.obj.navigate_obj.navigate(self.other_obj, self.target)
+
+
 class NavigateToSibling(object):
     """This is a helper descriptor for navigation destinations which are linked to the same class.
 
