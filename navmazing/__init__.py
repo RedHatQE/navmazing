@@ -74,7 +74,7 @@ class Navigate(object):
             return obj
         return f
 
-    def navigate(self, cls_or_obj, name):
+    def navigate(self, cls_or_obj, name, *args, **kwargs):
         """This function performs the navigation
 
         We first determine if we have a class of an instance and find the class
@@ -101,7 +101,7 @@ class Navigate(object):
             raise NavigationDestinationNotFound(name, cls.__name__,
                 self.list_destinations(cls))
 
-        return nav(cls_or_obj, self).go()
+        return nav(cls_or_obj, self).go(0, *args, **kwargs)
 
     def list_destinations(self, cls_or_obj):
         """Lists all available destinations for a given object
@@ -216,21 +216,21 @@ class NavigateStep(object):
         self.obj = obj
         self.navigate_obj = navigate_obj
 
-    def am_i_here(self):
+    def am_i_here(self, *args, **kwargs):
         """Describes if the navigation is already at the requested destination.
 
         This is a default and is generally overridden.
         """
         return False
 
-    def resetter(self):
+    def resetter(self, *args, **kwargs):
         """Describes any steps required to reset the view after navigating or if already there.
 
         This is a default and is generally overridden.
         """
         pass
 
-    def prerequisite(self):
+    def prerequisite(self, *args, **kwargs):
         """Describes a step that must be carried our prior to this one.
 
         This often calls a previous navigate_to, often using one of the helpers, NavigateToSibling
@@ -242,21 +242,21 @@ class NavigateStep(object):
         """
         pass
 
-    def step(self):
+    def step(self, *args, **kwargs):
         """Describes the work to be done to get to the destination after the prequisite is met.
 
         This is a default and is generally overridden.
         """
         return
 
-    def do_nav(self, _tries):
+    def do_nav(self, _tries, *args, **kwargs):
         """Describes how the navigation should take place."""
         try:
-            self.step()
+            self.step(*args, **kwargs)
         except:
-            self.go(_tries)
+            self.go(_tries, *args, **kwargs)
 
-    def pre_navigate(self, _tries):
+    def pre_navigate(self, _tries, *args, **kwargs):
         """Describes steps that takes place before any prerequisite or navigation takes place.
 
         This is a default and is generally overridden.
@@ -266,21 +266,21 @@ class NavigateStep(object):
         else:
             return
 
-    def post_navigate(self, _tries):
+    def post_navigate(self, _tries, *args, **kwargs):
         """Describes steps that takes place before any prerequisite after navigation takes place.
 
         This is a default and is generally overridden.
         """
         return
 
-    def go(self, _tries=0):
+    def go(self, _tries=0, *args, **kwargs):
         """Describes the flow of navigation."""
         _tries += 1
-        self.pre_navigate(_tries)
+        self.pre_navigate(_tries, *args, **kwargs)
         print("NAVIGATE: Checking if already at {}".format(self._name))
         here = False
         try:
-            here = self.am_i_here()
+            here = self.am_i_here(*args, **kwargs)
         except Exception as e:
             print("NAVIGATE: Exception raised [{}] whilst checking if already at {}".format(
                 e, self._name))
@@ -288,10 +288,10 @@ class NavigateStep(object):
             print("NAVIGATE: Already at {}".format(self._name))
         else:
             print("NAVIGATE: I'm not at {}".format(self._name))
-            self.prerequisite()
+            self.prerequisite(*args, **kwargs)
             print("NAVIGATE: Heading to destination {}".format(self._name))
-            self.do_nav(_tries)
-        self.resetter()
-        self.post_navigate(_tries)
+            self.do_nav(_tries, *args, **kwargs)
+        self.resetter(*args, **kwargs)
+        self.post_navigate(_tries, *args, **kwargs)
 
 navigate = Navigate()

@@ -7,11 +7,14 @@ import pytest
 navigate = Navigate()
 
 state = []
+arg_store = []
 
 
 class ObjectA(object):
     def __init__(self, name):
         self.name = name
+        self.margs = None
+        self.kwargs = None
 
 
 class ObjectB(object):
@@ -84,6 +87,17 @@ class NeedA(NavigateStep):
 
     def step(self):
         state.append(self._name)
+
+
+@navigate.register(ObjectA, 'StepZeroArgs')
+class StepZeroArgs(NavigateStep):
+
+    def am_i_here(self, *args, **kwargs):
+        return bool(state)
+
+    def step(self, *args, **kwargs):
+        self.obj.margs = list(args)
+        self.obj.kwargs = kwargs
 
 
 def test_navigation_to_instance():
@@ -171,7 +185,7 @@ def test_bad_am_i_here():
 
 def test_list_destinations():
     dests = navigate.list_destinations(ObjectA)
-    assert set(['StepZero', 'BadStepReturn', 'BadStep', 'StepOne']) == dests
+    assert set(['StepZero', 'BadStepReturn', 'BadStep', 'StepOne', 'StepZeroArgs']) == dests
 
 
 def test_navigate_to_object():
@@ -179,3 +193,12 @@ def test_navigate_to_object():
     b = ObjectB('a', 'a')
     navigate.navigate(b, 'NeedA')
     assert state == ['StepZero', 'StepOne', 'NeedA']
+
+
+def test_navigate_wth_args():
+    del state[:]
+    a = ObjectA
+    args = [1, 2, 3]
+    kwargs = {'a': 'A', 'b': 'B'}
+    navigate.navigate(a, 'StepZeroArgs', *args, **kwargs)
+    assert a.margs == args
