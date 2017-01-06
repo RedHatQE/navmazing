@@ -97,3 +97,28 @@ Flowchart
 The diagram below shows the flowchart of the process of resolving a navigation using the stock navmazing library. As the methods are overridable, the flow can be altered, but should suffice for most usages.
 
 .. image:: https://github.com/psav/navmazing/raw/master/flowchart.png
+
+Advanced Usage
+--------------
+
+navmazing also allows parameters to be passed at the navigate call. This means you can allow for some level of dynamic nature or choice in your navigation destinations. Let's say for example you have a step that usually works one way, but there are certain times when you need to overide that behaviour and make it work a different way.
+
+.. code-block:: python
+
+  @navigator.register(Provider, 'Details')
+  class ProviderDetails(NavigateStep)
+      prerequisite = NavigateToSibling('All')
+
+      def step(self, active=True):
+          if choice:
+              click(self.obj.name)
+          else:
+              click(self.obj.name + " - inactive")
+
+  # Call by default
+  navigate(obj, 'Details')
+
+  # Call, passing in a parameter for choice
+  navigate(obj, 'Details', active=False)
+
+In the example above, passing the ``active`` parameter changes the behaviour of the step.
