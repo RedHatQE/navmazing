@@ -294,4 +294,5 @@ class NavigateStep(object):
         self.resetter(*args, **kwargs)
         self.post_navigate(_tries, *args, **kwargs)
 
+
 navigate = Navigate()
