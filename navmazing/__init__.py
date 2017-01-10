@@ -139,7 +139,7 @@ class NavigateToObject(object):
             return self
 
     def __call__(self):
-        self.obj.navigate_obj.navigate(self.other_obj, self.target)
+        return self.obj.navigate_obj.navigate(self.other_obj, self.target)
 
 
 class NavigateToSibling(object):
@@ -162,7 +162,7 @@ class NavigateToSibling(object):
             return self
 
     def __call__(self):
-        self.obj.navigate_obj.navigate(self.obj.obj, self.target)
+        return self.obj.navigate_obj.navigate(self.obj.obj, self.target)
 
 
 class NavigateToAttribute(object):
@@ -190,7 +190,7 @@ class NavigateToAttribute(object):
 
     def __call__(self):
         attr = self._get_attr(self.obj.obj)
-        self.obj.navigate_obj.navigate(attr, self.target)
+        return self.obj.navigate_obj.navigate(attr, self.target)
 
 
 class NavigateStep(object):
@@ -288,7 +288,7 @@ class NavigateStep(object):
             print("NAVIGATE: Already at {}".format(self._name))
         else:
             print("NAVIGATE: I'm not at {}".format(self._name))
-            self.prerequisite(*args, **kwargs)
+            self.parent = self.prerequisite(*args, **kwargs)
             print("NAVIGATE: Heading to destination {}".format(self._name))
             self.do_nav(_tries, *args, **kwargs)
         self.resetter(*args, **kwargs)
