@@ -89,7 +89,7 @@ navmazing has a few helpers to make prerequisites easier to define
 
 * ``NavigateToSibling`` - Navigates to a destination that is registered to the same object as the current request.
 * ``NavigateToAttribute`` - Navigates to a destination that is registered to an attribute of the same object as the current request. This is useful if there is some kind of hierarcy to your objects and you wish to navigate to a step that is registered against an attribute rather than the object itself
-* ``NavigateToObject`` - Navigates to a destination thta is registered to the supplied object, it could be argued that NavigateToAttribute could be implemented with a NavigateToObject call, by simply offering the attribute object as the object. It feels more dynamic and cleaner to use NavigateToAttribute in these cases, there the attribute is a string that is looked up, rather than an object which is static.
+* ``NavigateToObject`` - Navigates to a destination that is registered to the supplied object, it could be argued that NavigateToAttribute could be implemented with a NavigateToObject call, by simply offering the attribute object as the object. It feels more dynamic and cleaner to use NavigateToAttribute in these cases, there the attribute is a string that is looked up, rather than an object which is static.
 
 Flowchart
 ---------
