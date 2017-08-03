@@ -38,21 +38,21 @@ An example is below. This creates a simple class modelling some Provider object 
           self.name = name
 
   @navigator.register(Provider, 'Details')
-  class ProviderDetails(NavigateStep)
+  class ProviderDetails(NavigateStep):
       prerequisite = NavigateToSibling('All')
 
       def step(self):
           click(self.obj.name)
 
   @navigator.register(Provider, 'New')
-  class AddANewProvider(NavigateStep)
+  class AddANewProvider(NavigateStep):
       prerequisite = NavigateToSibling('All')
 
       def step(self):
           click('Add New Button')
 
   @navigator.register(Provider, 'All')
-  class ShowAllProviders(NavigateStep)
+  class ShowAllProviders(NavigateStep):
       def am_i_here(self):
           return check_if_i_am_already_on_page()
 
