@@ -202,3 +202,9 @@ def test_navigate_wth_args():
     kwargs = {'a': 'A', 'b': 'B'}
     navigate.navigate(a, 'StepZeroArgs', *args, **kwargs)
     assert a.margs == args
+
+
+def test_get_name():
+    a = ObjectA
+    nav = navigate.get_class(a, 'BadStep')
+    assert nav == BadStep

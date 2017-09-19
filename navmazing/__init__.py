@@ -74,6 +74,21 @@ class Navigate(object):
             return obj
         return f
 
+    def get_class(self, cls_or_obj, name):
+        cls = type(cls_or_obj) if not inspect.isclass(cls_or_obj) else cls_or_obj
+        for class_ in cls.__mro__:
+            try:
+                nav = self.dest_dict[class_, name]
+            except KeyError:
+                continue
+            else:
+                break
+        else:
+            raise NavigationDestinationNotFound(name, cls.__name__,
+                self.list_destinations(cls))
+
+        return nav
+
     def navigate(self, cls_or_obj, name, *args, **kwargs):
         """This function performs the navigation
 
@@ -89,18 +104,7 @@ class Navigate(object):
 
         If we exhaust the MRO and we have still not found a match, we raise an exception.
         """
-        cls = type(cls_or_obj) if not inspect.isclass(cls_or_obj) else cls_or_obj
-        for class_ in cls.__mro__:
-            try:
-                nav = self.dest_dict[class_, name]
-            except KeyError:
-                continue
-            else:
-                break
-        else:
-            raise NavigationDestinationNotFound(name, cls.__name__,
-                self.list_destinations(cls))
-
+        nav = self.get_class(cls_or_obj, name)
         return nav(cls_or_obj, self).go(0, *args, **kwargs)
 
     def list_destinations(self, cls_or_obj):
