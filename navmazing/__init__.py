@@ -140,11 +140,10 @@ class Navigate(object):
 @attr.s(frozen=True)
 class NavigateMethod(object):
     descriptor = attr.ib()
-    obj = attr.ib()
+    step = attr.ib()
 
     def __call__(self):
-        print(self)
-        self.descriptor(self.obj)
+        self.descriptor(self.step)
 
 
 class NavigateDescriptorMixin(object):
@@ -166,8 +165,8 @@ class NavigateToObject(NavigateDescriptorMixin):
     other_obj = attr.ib()
     target = attr.ib()
 
-    def __call__(self, obj):
-        return obj.navigate_obj.navigate(self.other_obj, self.target)
+    def __call__(self, step):
+        return step.navigate_obj.navigate(self.other_obj, self.target)
 
 
 @attr.s(frozen=True)
@@ -182,8 +181,8 @@ class NavigateToSibling(NavigateDescriptorMixin):
     """
     target = attr.ib()
 
-    def __call__(self, obj):
-        return obj.navigate_obj.navigate(obj, self.target)
+    def __call__(self, step):
+        return step.navigate_obj.navigate(step.obj, self.target)
 
 
 class NavigateToAttribute(NavigateDescriptorMixin):
@@ -201,9 +200,9 @@ class NavigateToAttribute(NavigateDescriptorMixin):
     attr_name = attr.ib()
     target = attr.ib()
 
-    def __call__(self, obj):
+    def __call__(self, step):
         attr = getattr(obj.obj, self.attr_name)
-        return obj.navigate_obj.navigate(attr, self.target)
+        return step.navigate_obj.navigate(attr, self.target)
 
 
 class NavigateStep(object):
