@@ -29,7 +29,7 @@ An example is below::
 """
 import inspect
 import logging
-from operator import attrgetter
+import attr
 
 import warnings
 
@@ -137,7 +137,23 @@ class Navigate(object):
         return destinations
 
 
-class NavigateToObject(object):
+@attr.s
+class NavigateMethod(object):
+    descriptor = attr.ib()
+    obj = attr.ib()
+
+    def __call__(self):
+        print(self)
+        self.descriptor(self.obj)
+
+
+class NavigateDescriptorMixin(object):
+    def __get__(self, obj, owner):
+        return NavigateMethod(self, obj or owner)
+
+
+@attr.s
+class NavigateToObject(NavigateDescriptorMixin):
     """This is a helper descriptor for navigation destinations which are on another class/object.
 
     For instance, imagine you have a different object that has a 'ViewAll', destination that
@@ -147,22 +163,15 @@ class NavigateToObject(object):
     callable that will navigate to the prerequisite step on the other object.
     """
 
-    def __init__(self, other_obj, target, obj=None):
-        self.target = target
-        self.obj = obj
-        self.other_obj = other_obj
+    other_obj = attr.ib()
+    target = attr.ib()
 
-    def __get__(self, obj, owner):
-        if self.obj is None:
-            return type(self)(self.other_obj, self.target, obj or owner)
-        else:
-            return self
-
-    def __call__(self):
-        return self.obj.navigate_obj.navigate(self.other_obj, self.target)
+    def __call__(self, obj):
+        return obj.navigate_obj.navigate(self.other_obj, self.target)
 
 
-class NavigateToSibling(object):
+@attr.s
+class NavigateToSibling(NavigateDescriptorMixin):
     """This is a helper descriptor for navigation destinations which are linked to the same class.
 
     For instance, imagine you have an object that has a 'ViewAll', destination that needs to
@@ -171,22 +180,13 @@ class NavigateToSibling(object):
     input, we can use NavigateToSibling as a helper. This will set prerequisite to be a
     callable that will navigate to the prerequisite step.
     """
+    target = attr.ib()
 
-    def __init__(self, target, obj=None):
-        self.target = target
-        self.obj = obj
-
-    def __get__(self, obj, owner):
-        if self.obj is None:
-            return type(self)(self.target, obj or owner)
-        else:
-            return self
-
-    def __call__(self):
-        return self.obj.navigate_obj.navigate(self.obj.obj, self.target)
+    def __call__(self, obj):
+        return obj.navigate_obj.navigate(obj, self.target)
 
 
-class NavigateToAttribute(object):
+class NavigateToAttribute(NavigateDescriptorMixin):
     """This is a helper descriptor for destinations which are linked to an attribute of the object.
 
     For instance, imagine you have an object that has an attribute(parent) which has a 'ViewAll',
@@ -198,20 +198,11 @@ class NavigateToAttribute(object):
     to the prerequisite step.
     """
 
-    def __init__(self, attr_name, target, obj=None):
-        self.target = target
-        self.obj = obj
-        self.attr_name = attr_name
-        self._get_attr = attrgetter(attr_name)
+    attr_name = attr.ib()
+    target = attr.ib()
 
-    def __get__(self, obj, owner):
-        if self.obj is None:
-            return type(self)(self.attr_name, self.target, obj or owner)
-        else:
-            return self
-
-    def __call__(self):
-        attr = self._get_attr(self.obj.obj)
+    def __call__(self, obj):
+        attr = getattr(obj.obj, self.attr_name)
         return self.obj.navigate_obj.navigate(attr, self.target)
 
 
