@@ -137,7 +137,7 @@ class Navigate(object):
         return destinations
 
 
-@attr.s
+@attr.s(frozen=True)
 class NavigateMethod(object):
     descriptor = attr.ib()
     obj = attr.ib()
@@ -152,7 +152,7 @@ class NavigateDescriptorMixin(object):
         return NavigateMethod(self, obj or owner)
 
 
-@attr.s
+@attr.s(frozen=True)
 class NavigateToObject(NavigateDescriptorMixin):
     """This is a helper descriptor for navigation destinations which are on another class/object.
 
@@ -170,7 +170,7 @@ class NavigateToObject(NavigateDescriptorMixin):
         return obj.navigate_obj.navigate(self.other_obj, self.target)
 
 
-@attr.s
+@attr.s(frozen=True)
 class NavigateToSibling(NavigateDescriptorMixin):
     """This is a helper descriptor for navigation destinations which are linked to the same class.
 
@@ -203,7 +203,7 @@ class NavigateToAttribute(NavigateDescriptorMixin):
 
     def __call__(self, obj):
         attr = getattr(obj.obj, self.attr_name)
-        return self.obj.navigate_obj.navigate(attr, self.target)
+        return obj.navigate_obj.navigate(attr, self.target)
 
 
 class NavigateStep(object):
