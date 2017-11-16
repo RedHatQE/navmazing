@@ -139,6 +139,10 @@ class Navigate(object):
 
 @attr.s(frozen=True)
 class NavigateMethod(object):
+    """this helper object is used to map navigation descriptors to callables
+
+    it invokes the descriptors with the actual step objects when called
+    """
     descriptor = attr.ib()
     step = attr.ib()
 
@@ -147,7 +151,9 @@ class NavigateMethod(object):
 
 
 class NavigateDescriptorMixin(object):
+    """helper mixin to ensure all navigation descriptors create navigation methods"""
     def __get__(self, obj, owner):
+        # todo work towards deprecating class based navigation
         return NavigateMethod(self, obj or owner)
 
 
