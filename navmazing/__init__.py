@@ -33,34 +33,38 @@ from operator import attrgetter
 
 class NavigationDestinationNotFound(Exception):
     """Simple Exception when navigations can't be found"""
+
     def __init__(self, name, cls, possibilities):
         self.name = name
         self.cls = cls
         self.possibilities = possibilities
 
     def __str__(self):
-        return ("Couldn't find the destination [{}] with the given class [{}]"
-            " the following were available [{}]").format(
-            self.name, self.cls, ", ".join(sorted(list(self.possibilities))))
+        return (
+            "Couldn't find the destination [{}] with the given class [{}]"
+            " the following were available [{}]"
+        ).format(self.name, self.cls, ", ".join(sorted(list(self.possibilities))))
 
 
 class NavigationTriesExceeded(Exception):
     """Simple Exception when navigations can't be found"""
+
     def __init__(self, name):
         self.name = name
 
     def __str__(self):
-        return "Navigation failed to reach [{}] in the specificed tries".format(
-            self.name)
+        return "Navigation failed to reach [{}] in the specificed tries".format(self.name)
 
 
 class Navigate(object):
+
     def __init__(self):
         """Initializes the destination dictionary for the Navigate object """
         self.dest_dict = {}
 
     def register(self, cls, name=None):
         """Decorator that registers a class with an optional name"""
+
         def f(obj):
             """This is part of the decorator class
 
@@ -72,6 +76,7 @@ class Navigate(object):
             obj._name = destination_name
             self.dest_dict[cls, destination_name] = obj
             return obj
+
         return f
 
     def get_class(self, cls_or_obj, name):
@@ -84,8 +89,7 @@ class Navigate(object):
             else:
                 break
         else:
-            raise NavigationDestinationNotFound(name, cls.__name__,
-                self.list_destinations(cls))
+            raise NavigationDestinationNotFound(name, cls.__name__, self.list_destinations(cls))
 
         return nav
 
@@ -131,6 +135,7 @@ class NavigateToObject(object):
     input, we can use NavigateToObject as a helper. This will set prerequisite to be a
     callable that will navigate to the prerequisite step on the other object.
     """
+
     def __init__(self, other_obj, target, obj=None):
         self.target = target
         self.obj = obj
@@ -155,6 +160,7 @@ class NavigateToSibling(object):
     input, we can use NavigateToSibling as a helper. This will set prerequisite to be a
     callable that will navigate to the prerequisite step.
     """
+
     def __init__(self, target, obj=None):
         self.target = target
         self.obj = obj
@@ -180,6 +186,7 @@ class NavigateToAttribute(object):
     and the destination name. This will set prerequisite to be a callable that will navigate
     to the prerequisite step.
     """
+
     def __init__(self, attr_name, target, obj=None):
         self.target = target
         self.obj = obj
@@ -286,8 +293,11 @@ class NavigateStep(object):
         try:
             here = self.am_i_here(*args, **kwargs)
         except Exception as e:
-            print("NAVIGATE: Exception raised [{}] whilst checking if already at {}".format(
-                e, self._name))
+            print(
+                "NAVIGATE: Exception raised [{}] whilst checking if already at {}".format(
+                    e, self._name
+                )
+            )
         if here:
             print("NAVIGATE: Already at {}".format(self._name))
         else:
