@@ -264,7 +264,8 @@ class NavigateStep(object):
         """Describes how the navigation should take place."""
         try:
             self.step(*args, **kwargs)
-        except:
+        except Exception as e:
+            print("NAVIGATE: Got an error {}".format(e))
             self.go(_tries, *args, **kwargs)
 
     def pre_navigate(self, _tries, *args, **kwargs):
