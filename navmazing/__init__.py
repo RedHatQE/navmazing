@@ -28,6 +28,7 @@ An example is below::
 
 """
 import inspect
+import warnings
 from operator import attrgetter
 
 
@@ -310,4 +311,14 @@ class NavigateStep(object):
         self.post_navigate(_tries, *args, **kwargs)
 
 
-navigate = Navigate()
+class DeprecatedNavigateStandIn(object):
+    def __getattr__(self, key):
+        obj = getattr(_navigate, key)
+        warnings.warn(
+            'navmazing.navigate is deprecated, please create a project-local Navigate instance',
+            category=DeprecationWarning)
+        return obj
+
+
+_navigate = Navigate()
+navigate = DeprecatedNavigateStandIn()
