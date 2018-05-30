@@ -191,6 +191,7 @@ class NavigateToSibling(NavigateDescriptorMixin):
         return step.navigate_obj.navigate(step.obj, self.target)
 
 
+@attr.s
 class NavigateToAttribute(NavigateDescriptorMixin):
     """This is a helper descriptor for destinations which are linked to an attribute of the object.
 
@@ -207,7 +208,7 @@ class NavigateToAttribute(NavigateDescriptorMixin):
     target = attr.ib()
 
     def __call__(self, step):
-        attr = getattr(obj.obj, self.attr_name)
+        attr = getattr(step.obj, self.attr_name)
         return step.navigate_obj.navigate(attr, self.target)
 
 
