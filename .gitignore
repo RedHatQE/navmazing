@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#PBR Mess
+AUTHORS
+ChangeLog
+
+
 # C extensions
 *.so
 
