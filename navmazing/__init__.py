@@ -153,7 +153,7 @@ class NavigateMethod(object):
 class NavigateDescriptorMixin(object):
     """helper mixin to ensure all navigation descriptors create navigation methods"""
     def __get__(self, obj, owner):
-        # todo work towards deprecating class based navigation
+        # todo work towards supporting users to progress from class based to model based
         return NavigateMethod(self, obj or owner)
 
 
