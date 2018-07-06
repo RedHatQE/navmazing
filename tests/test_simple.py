@@ -1,3 +1,7 @@
+import logging
+
+import pytest
+
 from navmazing import (
     Navigate,
     NavigateStep,
@@ -7,12 +11,22 @@ from navmazing import (
     NavigateToAttribute,
     NavigateToObject,
 )
-import pytest
-
-navigate = Navigate()
 
 state = []
 arg_store = []
+
+logger = logging.getLogger('navmazing_null')
+for handler in logger.handlers:
+    logger.removeHandler(handler)
+
+file_formatter = logging.Formatter('%(asctime)-15s [%(levelname).1s] %(message)s')
+file_handler = logging.FileHandler('navmazing.log')
+file_handler.setFormatter(file_formatter)
+
+logger.addHandler(file_handler)
+logger.setLevel(10)
+
+navigate = Navigate(logger)
 
 
 class ObjectA(object):
@@ -197,7 +211,7 @@ def test_bad_am_i_here():
 
 def test_list_destinations():
     dests = navigate.list_destinations(ObjectA)
-    assert set(["StepZero", "BadStepReturn", "BadStep", "StepOne", "StepZeroArgs"]) == dests
+    assert {"StepZero", "BadStepReturn", "BadStep", "StepOne", "StepZeroArgs"} == dests
 
 
 def test_navigate_to_object():
