@@ -28,8 +28,13 @@ An example is below::
 
 """
 import inspect
-import warnings
+import logging
 from operator import attrgetter
+
+import warnings
+
+null_logger = logging.getLogger("navmazing_null")
+null_logger.addHandler(logging.NullHandler())
 
 
 class NavigationDestinationNotFound(Exception):
@@ -54,14 +59,17 @@ class NavigationTriesExceeded(Exception):
         self.name = name
 
     def __str__(self):
-        return "Navigation failed to reach [{}] in the specificed tries".format(self.name)
+        return "Navigation failed to reach [{}] in the specificed tries".format(
+            self.name
+        )
 
 
 class Navigate(object):
 
-    def __init__(self):
+    def __init__(self, logger=None):
         """Initializes the destination dictionary for the Navigate object """
         self.dest_dict = {}
+        self.logger = logger or null_logger
 
     def register(self, cls, name=None):
         """Decorator that registers a class with an optional name"""
@@ -90,7 +98,9 @@ class Navigate(object):
             else:
                 break
         else:
-            raise NavigationDestinationNotFound(name, cls.__name__, self.list_destinations(cls))
+            raise NavigationDestinationNotFound(
+                name, cls.__name__, self.list_destinations(cls)
+            )
 
         return nav
 
@@ -110,7 +120,7 @@ class Navigate(object):
         If we exhaust the MRO and we have still not found a match, we raise an exception.
         """
         nav = self.get_class(cls_or_obj, name)
-        return nav(cls_or_obj, self).go(0, *args, **kwargs)
+        return nav(cls_or_obj, self, self.logger).go(0, *args, **kwargs)
 
     def list_destinations(self, cls_or_obj):
         """Lists all available destinations for a given object
@@ -216,8 +226,9 @@ class NavigateStep(object):
        completed
     """
     _default_tries = 3
+    _name = "OVERRIDE_ME"
 
-    def __init__(self, obj, navigate_obj):
+    def __init__(self, obj, navigate_obj, logger=None):
         """ NavigateStep object.
 
         A NavigateStep object should always recieve the object it is linked to
@@ -227,6 +238,7 @@ class NavigateStep(object):
         """
         self.obj = obj
         self.navigate_obj = navigate_obj
+        self.logger = logger or null_logger
 
     def am_i_here(self, *args, **kwargs):
         """Describes if the navigation is already at the requested destination.
@@ -266,7 +278,7 @@ class NavigateStep(object):
         try:
             self.step(*args, **kwargs)
         except Exception as e:
-            print("NAVIGATE: Got an error {}".format(e))
+            self.logger.error("NAVIGATE: Got an error {}".format(e))
             self.go(_tries, *args, **kwargs)
 
     def pre_navigate(self, _tries, *args, **kwargs):
@@ -290,33 +302,35 @@ class NavigateStep(object):
         """Describes the flow of navigation."""
         _tries += 1
         self.pre_navigate(_tries, *args, **kwargs)
-        print("NAVIGATE: Checking if already at {}".format(self._name))
+        self.logger.info("NAVIGATE: Checking if already at {}".format(self._name))
         here = False
         try:
             here = self.am_i_here(*args, **kwargs)
         except Exception as e:
-            print(
+            self.logger.error(
                 "NAVIGATE: Exception raised [{}] whilst checking if already at {}".format(
                     e, self._name
                 )
             )
         if here:
-            print("NAVIGATE: Already at {}".format(self._name))
+            self.logger.info("NAVIGATE: Already at {}".format(self._name))
         else:
-            print("NAVIGATE: I'm not at {}".format(self._name))
+            self.logger.info("NAVIGATE: I'm not at {}".format(self._name))
             self.parent = self.prerequisite(*args, **kwargs)
-            print("NAVIGATE: Heading to destination {}".format(self._name))
+            self.logger.info("NAVIGATE: Heading to destination {}".format(self._name))
             self.do_nav(_tries, *args, **kwargs)
         self.resetter(*args, **kwargs)
         self.post_navigate(_tries, *args, **kwargs)
 
 
 class DeprecatedNavigateStandIn(object):
+
     def __getattr__(self, key):
         obj = getattr(_navigate, key)
         warnings.warn(
-            'navmazing.navigate is deprecated, please create a project-local Navigate instance',
-            category=DeprecationWarning)
+            "navmazing.navigate is deprecated, please create a project-local Navigate instance",
+            category=DeprecationWarning,
+        )
         return obj
 
 
