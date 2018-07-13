@@ -147,19 +147,22 @@ class NavigateToObject(object):
     callable that will navigate to the prerequisite step on the other object.
     """
 
-    def __init__(self, other_obj, target, obj=None):
+    def __init__(self, other_obj, target, obj=None, *args, **kwargs):
         self.target = target
         self.obj = obj
         self.other_obj = other_obj
+        self.wait_for_view = kwargs.get('wait_for_view', False)
 
     def __get__(self, obj, owner):
         if self.obj is None:
-            return type(self)(self.other_obj, self.target, obj or owner)
+            return type(self)(self.other_obj, self.target, obj or owner,
+             wait_for_view=self.wait_for_view)
         else:
             return self
 
     def __call__(self):
-        return self.obj.navigate_obj.navigate(self.other_obj, self.target)
+        return self.obj.navigate_obj.navigate(self.other_obj, self.target,
+         wait_for_view=self.wait_for_view)
 
 
 class NavigateToSibling(object):
@@ -172,18 +175,20 @@ class NavigateToSibling(object):
     callable that will navigate to the prerequisite step.
     """
 
-    def __init__(self, target, obj=None):
+    def __init__(self, target, obj=None, *args, **kwargs):
         self.target = target
         self.obj = obj
+        self.wait_for_view = kwargs.get('wait_for_view', False)
 
     def __get__(self, obj, owner):
         if self.obj is None:
-            return type(self)(self.target, obj or owner)
+            return type(self)(self.target, obj or owner, wait_for_view=self.wait_for_view)
         else:
             return self
 
     def __call__(self):
-        return self.obj.navigate_obj.navigate(self.obj.obj, self.target)
+        return self.obj.navigate_obj.navigate(self.obj.obj, self.target,
+            wait_for_view=self.wait_for_view)
 
 
 class NavigateToAttribute(object):
@@ -198,21 +203,22 @@ class NavigateToAttribute(object):
     to the prerequisite step.
     """
 
-    def __init__(self, attr_name, target, obj=None):
+    def __init__(self, attr_name, target, obj=None, *args, **kwargs):
         self.target = target
         self.obj = obj
         self.attr_name = attr_name
         self._get_attr = attrgetter(attr_name)
+        self.wait_for_view = kwargs.get('wait_for_view', False)
 
     def __get__(self, obj, owner):
         if self.obj is None:
-            return type(self)(self.attr_name, self.target, obj or owner)
+            return type(self)(self.attr_name, self.target, obj or owner, wait_for_view=self.wait_for_view)
         else:
             return self
 
     def __call__(self):
         attr = self._get_attr(self.obj.obj)
-        return self.obj.navigate_obj.navigate(attr, self.target)
+        return self.obj.navigate_obj.navigate(attr, self.target, wait_for_view=self.wait_for_view)
 
 
 class NavigateStep(object):
