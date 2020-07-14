@@ -88,7 +88,7 @@ Navigation Helpers
 navmazing has a few helpers to make prerequisites easier to define
 
 * ``NavigateToSibling`` - Navigates to a destination that is registered to the same object as the current request.
-* ``NavigateToAttribute`` - Navigates to a destination that is registered to an attribute of the same object as the current request. This is useful if there is some kind of hierarcy to your objects and you wish to navigate to a step that is registered against an attribute rather than the object itself
+* ``NavigateToAttribute`` - Navigates to a destination that is registered to an attribute of the same object as the current request. This is useful if there is some kind of hierarchy to your objects and you wish to navigate to a step that is registered against an attribute rather than the object itself
 * ``NavigateToObject`` - Navigates to a destination that is registered to the supplied object, it could be argued that NavigateToAttribute could be implemented with a NavigateToObject call, by simply offering the attribute object as the object. It feels more dynamic and cleaner to use NavigateToAttribute in these cases, there the attribute is a string that is looked up, rather than an object which is static.
 
 Flowchart
@@ -101,7 +101,7 @@ The diagram below shows the flowchart of the process of resolving a navigation u
 Advanced Usage
 --------------
 
-navmazing also allows parameters to be passed at the navigate call. This means you can allow for some level of dynamic nature or choice in your navigation destinations. Let's say for example you have a step that usually works one way, but there are certain times when you need to overide that behaviour and make it work a different way.
+navmazing also allows parameters to be passed at the navigate call. This means you can allow for some level of dynamic nature or choice in your navigation destinations. Let's say for example you have a step that usually works one way, but there are certain times when you need to override that behaviour and make it work a different way.
 
 .. code-block:: python
 

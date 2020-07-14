@@ -190,7 +190,7 @@ def test_bad_step():
         try:
             navigate.navigate(a, "BadStep")
         except NavigationTriesExceeded as e:
-            assert str(e) == "Navigation failed to reach [{}] in the specificed tries".format(
+            assert str(e) == "Navigation failed to reach [{}] in the specified tries".format(
                 "BadStep"
             )
             raise

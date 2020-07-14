@@ -59,7 +59,7 @@ class NavigationTriesExceeded(Exception):
         self.name = name
 
     def __str__(self):
-        return "Navigation failed to reach [{}] in the specificed tries".format(
+        return "Navigation failed to reach [{}] in the specified tries".format(
             self.name
         )
 
@@ -231,9 +231,9 @@ class NavigateStep(object):
     def __init__(self, obj, navigate_obj, logger=None):
         """ NavigateStep object.
 
-        A NavigateStep object should always recieve the object it is linked to
+        A NavigateStep object should always receive the object it is linked to
         and this is stored in the obj attribute. The navigate_obj is the Navigate() instance
-        that the destination is registered against. This allows it to navigate inside pre-requisites
+        that the destination is registered against. This allows it to navigate inside prerequisites
         using the NavigateToSibling and NavigateToAttribute helpers described above.
         """
         self.obj = obj
@@ -267,7 +267,7 @@ class NavigateStep(object):
         pass
 
     def step(self, *args, **kwargs):
-        """Describes the work to be done to get to the destination after the prequisite is met.
+        """Describes the work to be done to get to the destination after the prerequisite is met.
 
         This is a default and is generally overridden.
         """
