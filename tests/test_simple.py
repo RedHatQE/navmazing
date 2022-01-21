@@ -15,12 +15,12 @@ from navmazing import (
 state = []
 arg_store = []
 
-logger = logging.getLogger('navmazing_null')
+logger = logging.getLogger("navmazing_null")
 for handler in logger.handlers:
     logger.removeHandler(handler)
 
-file_formatter = logging.Formatter('%(asctime)-15s [%(levelname).1s] %(message)s')
-file_handler = logging.FileHandler('navmazing.log')
+file_formatter = logging.Formatter("%(asctime)-15s [%(levelname).1s] %(message)s")
+file_handler = logging.FileHandler("navmazing.log")
 file_handler.setFormatter(file_formatter)
 
 logger.addHandler(file_handler)
@@ -29,23 +29,20 @@ logger.setLevel(10)
 navigate = Navigate(logger)
 
 
-class ObjectA(object):
-
+class ObjectA:
     def __init__(self, name):
         self.name = name
         self.margs = None
         self.kwargs = None
 
 
-class ObjectB(object):
-
+class ObjectB:
     def __init__(self, name, parent):
         self.name = name
         self.parent = parent
 
 
-class ObjectC(object):
-
+class ObjectC:
     def __init__(self, name, parent=None):
         self.name = name
         self.parent = parent
@@ -61,7 +58,6 @@ class StepTwoAgain(NavigateStep):
 
 @navigate.register(ObjectB, "StepTwo")
 class StepTwoToo(NavigateStep):
-
     def prerequisite(self):
         self.navigate_obj.navigate(self.obj.parent, "StepOne")
 
@@ -95,7 +91,6 @@ class StepOne(NavigateStep):
 
 @navigate.register(ObjectA, "StepZero")
 class StepZero(NavigateStep):
-
     def am_i_here(self):
         return bool(state)
 
@@ -114,7 +109,6 @@ class NeedA(NavigateStep):
 
 @navigate.register(ObjectA, "StepZeroArgs")
 class StepZeroArgs(NavigateStep):
-
     def am_i_here(self, *args, **kwargs):
         return bool(state)
 
@@ -166,7 +160,11 @@ def test_bad_step_multi():
             assert str(e) == (
                 "Couldn't find the destination [{}] with the given class [{}] "
                 "the following were available [{}]"
-            ).format("Whoop", "ObjectB", ", ".join(sorted(["NeedA", "StepTwo, StepTwoAgain"])))
+            ).format(
+                "Whoop",
+                "ObjectB",
+                ", ".join(sorted(["NeedA", "StepTwo, StepTwoAgain"])),
+            )
             raise
 
 
@@ -190,7 +188,9 @@ def test_bad_step():
         try:
             navigate.navigate(a, "BadStep")
         except NavigationTriesExceeded as e:
-            assert str(e) == "Navigation failed to reach [{}] in the specified tries".format(
+            assert str(
+                e
+            ) == "Navigation failed to reach [{}] in the specified tries".format(
                 "BadStep"
             )
             raise
