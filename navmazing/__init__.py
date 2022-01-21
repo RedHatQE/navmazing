@@ -64,10 +64,9 @@ class NavigationTriesExceeded(Exception):
         )
 
 
-class Navigate(object):
-
+class Navigate:
     def __init__(self, logger=None):
-        """Initializes the destination dictionary for the Navigate object """
+        """Initializes the destination dictionary for the Navigate object"""
         self.dest_dict = {}
         self.logger = logger or null_logger
 
@@ -137,7 +136,7 @@ class Navigate(object):
         return destinations
 
 
-class NavigateToObject(object):
+class NavigateToObject:
     """This is a helper descriptor for navigation destinations which are on another class/object.
 
     For instance, imagine you have a different object that has a 'ViewAll', destination that
@@ -162,7 +161,7 @@ class NavigateToObject(object):
         return self.obj.navigate_obj.navigate(self.other_obj, self.target)
 
 
-class NavigateToSibling(object):
+class NavigateToSibling:
     """This is a helper descriptor for navigation destinations which are linked to the same class.
 
     For instance, imagine you have an object that has a 'ViewAll', destination that needs to
@@ -186,7 +185,7 @@ class NavigateToSibling(object):
         return self.obj.navigate_obj.navigate(self.obj.obj, self.target)
 
 
-class NavigateToAttribute(object):
+class NavigateToAttribute:
     """This is a helper descriptor for destinations which are linked to an attribute of the object.
 
     For instance, imagine you have an object that has an attribute(parent) which has a 'ViewAll',
@@ -215,7 +214,7 @@ class NavigateToAttribute(object):
         return self.obj.navigate_obj.navigate(attr, self.target)
 
 
-class NavigateStep(object):
+class NavigateStep:
     """A Navigation Step object
 
     The NavigateStep object runs through several key stages
@@ -225,11 +224,12 @@ class NavigateStep(object):
     3) It runs the step function to navigate to the current step after the prerequisite has been
        completed
     """
+
     _default_tries = 3
     _name = "OVERRIDE_ME"
 
     def __init__(self, obj, navigate_obj, logger=None):
-        """ NavigateStep object.
+        """NavigateStep object.
 
         A NavigateStep object should always receive the object it is linked to
         and this is stored in the obj attribute. The navigate_obj is the Navigate() instance
@@ -278,7 +278,7 @@ class NavigateStep(object):
         try:
             self.step(*args, **kwargs)
         except Exception as e:
-            self.logger.error("NAVIGATE: Got an error {}".format(e))
+            self.logger.error(f"NAVIGATE: Got an error {e}")
             self.go(_tries, *args, **kwargs)
 
     def pre_navigate(self, _tries, *args, **kwargs):
@@ -302,7 +302,7 @@ class NavigateStep(object):
         """Describes the flow of navigation."""
         _tries += 1
         self.pre_navigate(_tries, *args, **kwargs)
-        self.logger.info("NAVIGATE: Checking if already at {}".format(self._name))
+        self.logger.info(f"NAVIGATE: Checking if already at {self._name}")
         here = False
         try:
             here = self.am_i_here(*args, **kwargs)
@@ -313,18 +313,17 @@ class NavigateStep(object):
                 )
             )
         if here:
-            self.logger.info("NAVIGATE: Already at {}".format(self._name))
+            self.logger.info(f"NAVIGATE: Already at {self._name}")
         else:
-            self.logger.info("NAVIGATE: I'm not at {}".format(self._name))
+            self.logger.info(f"NAVIGATE: I'm not at {self._name}")
             self.parent = self.prerequisite(*args, **kwargs)
-            self.logger.info("NAVIGATE: Heading to destination {}".format(self._name))
+            self.logger.info(f"NAVIGATE: Heading to destination {self._name}")
             self.do_nav(_tries, *args, **kwargs)
         self.resetter(*args, **kwargs)
         self.post_navigate(_tries, *args, **kwargs)
 
 
-class DeprecatedNavigateStandIn(object):
-
+class DeprecatedNavigateStandIn:
     def __getattr__(self, key):
         obj = getattr(_navigate, key)
         warnings.warn(
