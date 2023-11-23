@@ -321,17 +321,3 @@ class NavigateStep:
             self.do_nav(_tries, *args, **kwargs)
         self.resetter(*args, **kwargs)
         self.post_navigate(_tries, *args, **kwargs)
-
-
-class DeprecatedNavigateStandIn:
-    def __getattr__(self, key):
-        obj = getattr(_navigate, key)
-        warnings.warn(
-            "navmazing.navigate is deprecated, please create a project-local Navigate instance",
-            category=DeprecationWarning,
-        )
-        return obj
-
-
-_navigate = Navigate()
-navigate = DeprecatedNavigateStandIn()
