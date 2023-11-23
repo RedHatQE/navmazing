@@ -8,7 +8,7 @@ description = "A simple navigation framework"
 authors = [{name="Peter Savage",email="psavage@redhat.com"}]
 maintainers = [{name="Ronny Pfannschmidt", email="rpfannsc@redhat.com"}]
 
-readme = {file="README.md", content-type="text/markdown"}
+readme = {file="README.rst", content-type="text/x-rst"}
 urls.Project = "https://github.com/RedhatQE/navmazing/"
 classifiers = [
 
