@@ -32,8 +32,9 @@ navigate = Navigate(logger)
 
 class ObjectA:
     name: str
-    margs: tuple[object, ...]|None
+    margs: tuple[object, ...] | None
     kwargs: Mapping[str, object] | None
+
     def __init__(self, name: str) -> None:
         self.name = name
         self.margs = None
@@ -41,17 +42,19 @@ class ObjectA:
 
 
 class ObjectB:
-    name: str|type
+    name: str | type
     parent: object
-    def __init__(self, name: str|type, parent: object) -> None:
+
+    def __init__(self, name: str | type, parent: object) -> None:
         self.name = name
         self.parent = parent
 
 
 class ObjectC:
     name: str
-    parent: ObjectB|None
-    def __init__(self, name: str, parent: ObjectB|None=None) -> None:
+    parent: ObjectB | None
+
+    def __init__(self, name: str, parent: ObjectB | None = None) -> None:
         self.name = name
         self.parent = parent
 
@@ -67,7 +70,8 @@ class StepTwoAgain(NavigateStep):
 @navigate.register(ObjectB, "StepTwo")
 class StepTwoToo(NavigateStep):
     obj: ObjectB
-    def prerequisite(self,  *args: object, **kwargs: object) -> None:
+
+    def prerequisite(self, *args: object, **kwargs: object) -> None:
         self.navigate_obj.navigate(self.obj.parent, "StepOne")
 
     def step(self, *args: object, **kwargs: object) -> None:
@@ -118,10 +122,11 @@ class NeedA(NavigateStep):
 @navigate.register(ObjectA, "StepZeroArgs")
 class StepZeroArgs(NavigateStep):
     obj: ObjectA
+
     def am_i_here(self, *args: object, **kwargs: object) -> bool:
         return bool(state)
 
-    def step(self,  *args: object, **kwargs: object) -> None:
+    def step(self, *args: object, **kwargs: object) -> None:
         self.obj.margs = args
         self.obj.kwargs = kwargs
 

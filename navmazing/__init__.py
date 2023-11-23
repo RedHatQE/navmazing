@@ -31,8 +31,7 @@ from __future__ import annotations
 import inspect
 import logging
 from operator import attrgetter
-from typing import Callable, TypeVar, Any, cast, ClassVar
-import warnings
+from typing import Callable, TypeVar, ClassVar
 from typing_extensions import Self
 
 from copy import copy as _copy
@@ -217,7 +216,7 @@ class NavigateToSibling(NavigatePropertyMixin):
         self.obj = obj
 
     def __call__(self, *args: object, **kwargs: object) -> object:
-        #TODO: warn about args for this one
+        # TODO: warn about args for this one
         assert self._step is not None
         return self._step.navigate_obj.navigate(self._step.obj, self.target)
 

@@ -1,5 +1,1 @@
-import pytest
-
-import navmazing
-
-# todo: add deprecations for types nad for navigate args
+# todo: add deprecations for types and for navigate args
