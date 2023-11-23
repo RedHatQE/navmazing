@@ -32,6 +32,7 @@ import inspect
 
 from operator import attrgetter
 from typing import Callable, TypeVar, ClassVar, TYPE_CHECKING
+
 if TYPE_CHECKING:
     from typing_extensions import Self
     import logging
