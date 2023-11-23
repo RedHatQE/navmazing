@@ -31,8 +31,9 @@ from __future__ import annotations
 import inspect
 import logging
 from operator import attrgetter
-from typing import Callable, TypeVar, ClassVar
-from typing_extensions import Self
+from typing import Callable, TypeVar, ClassVar, TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing_extensions import Self
 
 from copy import copy as _copy
 
