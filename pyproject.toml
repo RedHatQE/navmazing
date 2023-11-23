@@ -29,6 +29,7 @@ requires-python = ">= 3.8"
 dynamic = ["version"]
 [tool.setuptools]
 packages = ["navmazing"]
+package-dir = {""="src"}
 package-data = {navmazing= ["py.typed"]}
 
 [tool.setuptools_scm]
