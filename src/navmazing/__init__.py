@@ -29,16 +29,16 @@ An example is below::
 """
 from __future__ import annotations
 import inspect
-import logging
+
 from operator import attrgetter
 from typing import Callable, TypeVar, ClassVar, TYPE_CHECKING
 if TYPE_CHECKING:
     from typing_extensions import Self
+    import logging
 
 from copy import copy as _copy
+from ._logging import null_logger as _null_logger
 
-null_logger = logging.getLogger("navmazing_null")
-null_logger.addHandler(logging.NullHandler())
 T = TypeVar("T")
 
 
@@ -77,7 +77,7 @@ class Navigate:
     dest_dict: dict[tuple[type, str], type[NavigateStep]]
     logger: logging.Logger
 
-    def __init__(self, logger: logging.Logger = null_logger) -> None:
+    def __init__(self, logger: logging.Logger = _null_logger) -> None:
         """Initializes the destination dictionary for the Navigate object"""
         self.dest_dict = {}
         self.logger = logger
@@ -267,7 +267,7 @@ class NavigateStep:
     logger: logging.Logger
 
     def __init__(
-        self, obj: object, navigate_obj: Navigate, logger: logging.Logger = null_logger
+        self, obj: object, navigate_obj: Navigate, logger: logging.Logger = _null_logger
     ) -> None:
         """NavigateStep object.
 
