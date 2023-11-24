@@ -6,12 +6,14 @@ import pytest
 from navmazing import (
     Navigate,
     NavigateStep,
-    NavigateToSibling,
     NavigationTriesExceeded,
-    NavigationDestinationNotFound,
-    NavigateToAttribute,
-    NavigateToObject,
 )
+from navmazing._shortcuts import (
+    NavigateToObject,
+    NavigateToSibling,
+    NavigateToAttribute,
+)
+from navmazing._errors import NavigationDestinationNotFound
 
 state: list[str] = []
 arg_store: list[str] = []
@@ -161,6 +163,11 @@ def test_bad_step_exception() -> None:
     b = ObjectB(ObjectA, a)
     with pytest.raises(NavigationDestinationNotFound):
         navigate.navigate(b, "Weird")
+
+
+def test_navigate_unknown() -> None:
+    with pytest.raises(NavigationDestinationNotFound):
+        navigate.navigate("omg", "Wrong")
 
 
 def test_bad_step_multi() -> None:

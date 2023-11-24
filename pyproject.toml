@@ -37,3 +37,7 @@ package-data = {navmazing= ["py.typed"]}
 [tool.mypy]
 strict=true
 python_version = "3.8"
+
+[tool.ruff]
+extend-select = ["UP","F","E","W","ANN", "FA"]
+ignore = ["ANN101", "ANN102"]
