@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import warnings
+from itertools import chain
 from typing import Callable
 
 from ._step import NavigateStep
@@ -60,6 +61,20 @@ class Navigate:
             warnings.warn(
                 f"navigation to types like {cls_or_obj!r} is deprecated,"
                 " please use instances",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
+
+        if args or kwargs:
+            args_str = ", ".join(
+                chain(
+                    map(repr, args),
+                    (f"{key}={value!r}" for key, value in kwargs.items()),
+                )
+            )
+            warnings.warn(
+                f"additional navigation args are deprecated, ({args_str}) was given\n"
+                "use auxiliary classes to register configured locations",
                 category=DeprecationWarning,
                 stacklevel=2,
             )
