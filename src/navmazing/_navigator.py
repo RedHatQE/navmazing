@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from typing import Callable
 
 from ._step import NavigateStep
@@ -35,6 +36,7 @@ class Navigate:
 
     def get_class(self, cls_or_obj: type | object, name: str) -> type[NavigateStep]:
         cls: type = type(cls_or_obj) if not isinstance(cls_or_obj, type) else cls_or_obj
+
         for base in cls.__mro__:
             maybe_step = self.dest_dict.get((base, name))
             if maybe_step is not None:
@@ -54,6 +56,13 @@ class Navigate:
 
         then its go method will be used for doing the actual steps
         """
+        if isinstance(cls_or_obj, type):
+            warnings.warn(
+                f"navigation to types like {cls_or_obj!r} is deprecated,"
+                " please use instances",
+                category=DeprecationWarning,
+                stacklevel=2,
+            )
         nav = self.get_class(cls_or_obj, name)
         return nav(cls_or_obj, self, self.logger).go(0, *args, **kwargs)
 
