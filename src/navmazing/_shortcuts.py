@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from _operator import attrgetter
 from copy import copy as _copy
+import typing
 
-from typing_extensions import Self
+if typing.TYPE_CHECKING:
+    from typing_extensions import Self
 
 from ._step import NavigateStep
 
