@@ -1,18 +1,35 @@
+# todo: add deprecations for types and for navigate args
 import pytest
 
 import navmazing
 
 
-@pytest.mark.parametrize(
-    "attribute", [x for x in dir(navmazing.Navigate()) if not x.startswith("__")]
-)
-def test_navmazing_navigate_deprecated(attribute):
-    with pytest.warns(DeprecationWarning):
-        res = getattr(navmazing.navigate, attribute)
-        assert res == getattr(navmazing._navigate, attribute)
+def test_navigate_to_class_warns() -> None:
+    nav = navmazing.Navigate()
+
+    @nav.register(int, "parse")
+    class Step(navmazing.NavigateStep):
+        def step(self, *k: object, **kw: object) -> None:
+            print(self.obj)
+
+    with pytest.warns(
+        DeprecationWarning,
+        match="navigation to types like .* is deprecated, please use instances",
+    ):
+        nav.navigate(int, "parse")
 
 
-@pytest.mark.filterwarnings("error::DeprecationWarning")
-def test_navmazing_navigate_attributeerror_nowarn():
-    with pytest.raises(AttributeError):
-        navmazing.navigate.this_is_not_here
+def test_navigate_warns_args():
+    nav = navmazing.Navigate()
+
+    @nav.register(int, "parse")
+    class Step(navmazing.NavigateStep):
+        def step(self, *k: object, **kw: object) -> None:
+            print(self.obj)
+
+    with pytest.warns(
+        DeprecationWarning,
+        match="additional navigation args are deprecated, .* was given\n"
+        "use auxiliary classes to register configured locations",
+    ):
+        nav.navigate(1, "parse", "arg")

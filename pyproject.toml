@@ -1,5 +1,43 @@
 [build-system]
-requires = ["setuptools>=52", "setuptools_scm[toml]>=6.2.3"]
+requires = ["setuptools>=64", "setuptools_scm>=8.0.0"]
 build-backend="setuptools.build_meta"
 
+[project]
+name = "navmazing"
+description = "A simple navigation framework"
+authors = [{name="Peter Savage",email="psavage@redhat.com"}]
+maintainers = [{name="Ronny Pfannschmidt", email="rpfannsc@redhat.com"}]
+
+readme = {file="README.rst", content-type="text/x-rst"}
+urls.Project = "https://github.com/RedhatQE/navmazing/"
+classifiers = [
+
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Utilities",
+
+]
+keywords = ["selenium", "navigation"]
+requires-python = ">= 3.8"
+
+dynamic = ["version"]
+[tool.setuptools]
+packages = ["navmazing"]
+package-dir = {""="src"}
+package-data = {navmazing= ["py.typed"]}
+
 [tool.setuptools_scm]
+
+[tool.mypy]
+strict=true
+python_version = "3.8"
+
+[tool.ruff]
+extend-select = ["UP","F","E","W","ANN", "FA"]
+ignore = ["ANN101", "ANN102"]
