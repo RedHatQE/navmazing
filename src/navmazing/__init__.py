@@ -27,6 +27,7 @@ An example is below::
             click('All button')
 
 """
+
 from __future__ import annotations
 from ._errors import NavigationTriesExceeded
 from ._navigator import Navigate
