@@ -48,7 +48,13 @@ class Navigate:
             )
 
     def navigate(
-        self, cls_or_obj: type | object, name: str, *args: object, **kwargs: object
+        self,
+        cls_or_obj: type | object,
+        name: str,
+        *args: object,
+        use_resetter: bool = True,
+        wait_for_view: bool | int | str = None,
+        **kwargs: object,
     ) -> object:
         """performs the navigation
 
@@ -79,7 +85,9 @@ class Navigate:
                 stacklevel=2,
             )
         nav = self.get_class(cls_or_obj, name)
-        return nav(cls_or_obj, self, self.logger).go(0, *args, **kwargs)
+        return nav(cls_or_obj, self, self.logger).go(
+            0, *args, use_resetter=use_resetter, wait_for_view=wait_for_view, **kwargs
+        )
 
     def list_destinations(self, cls_or_obj: type | object) -> set[str]:
         """Lists all available destinations for a given object
