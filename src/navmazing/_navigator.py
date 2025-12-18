@@ -57,6 +57,7 @@ class Navigate:
 
         then its go method will be used for doing the actual steps
         """
+        __tracebackhide__ = True
         if isinstance(cls_or_obj, type):
             warnings.warn(
                 f"navigation to types like {cls_or_obj!r} is deprecated,"
@@ -71,12 +72,6 @@ class Navigate:
                     map(repr, args),
                     (f"{key}={value!r}" for key, value in kwargs.items()),
                 )
-            )
-            warnings.warn(
-                f"additional navigation args are deprecated, ({args_str}) was given\n"
-                "use auxiliary classes to register configured locations",
-                category=DeprecationWarning,
-                stacklevel=2,
             )
         nav = self.get_class(cls_or_obj, name)
         return nav(cls_or_obj, self, self.logger).go(0, *args, **kwargs)
