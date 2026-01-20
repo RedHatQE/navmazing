@@ -28,6 +28,10 @@ classifiers = [
 keywords = ["selenium", "navigation"]
 requires-python = ">= 3.8"
 
+dependencies = [
+  "wait_for",
+]
+
 dynamic = ["version"]
 [tool.setuptools]
 packages = ["navmazing"]

@@ -3,6 +3,9 @@ import logging
 from typing import Mapping
 
 import pytest
+
+from wait_for import TimedOutError
+
 from navmazing import (
     Navigate,
     NavigateStep,
@@ -17,6 +20,7 @@ from navmazing._errors import NavigationDestinationNotFound
 
 state: list[str] = []
 arg_store: list[str] = []
+
 
 logger = logging.getLogger("navmazing_null")
 for handler in logger.handlers:
@@ -59,6 +63,11 @@ class ObjectC:
     def __init__(self, name: str, parent: ObjectB | None = None) -> None:
         self.name = name
         self.parent = parent
+
+
+@pytest.fixture(scope="function")
+def clear_state():
+    del state[:]
 
 
 @navigate.register(ObjectB)
@@ -133,32 +142,58 @@ class StepZeroArgs(NavigateStep):
         self.obj.kwargs = kwargs
 
 
-def test_navigation_to_instance() -> None:
-    del state[:]
+@navigate.register(ObjectA, "IncludeResetter")
+class IncludeResetter(NavigateStep):
+    prerequisite = NavigateToSibling("StepZero")
+
+    def step(self, *args: object, **kwargs: object) -> bool:
+        state.append(self._name)
+        self.obj.margs = args
+        self.obj.kwargs = kwargs
+
+    def resetter(self, *args: object, **kwargs: object) -> None:
+        state.append("ResetterUsed")
+
+
+@navigate.register(ObjectA, "NeverHere")
+class NeverHere(NavigateStep):
+    prerequisite = NavigateToSibling("StepZero")
+
+    def am_i_here(self, *args, **kwargs) -> bool:
+        return False  # I was never here!
+
+    def step(self, *args: object, **kwargs: object) -> bool:
+        state.append(self._name)
+
+
+def test_get_name() -> None:
+    a = ObjectA
+    nav = navigate.get_class(a, "BadStep")
+    assert nav == BadStep
+
+
+def test_navigation_to_instance(clear_state) -> None:
     a = ObjectA("ObjectA")
     b = ObjectB("ObjectB", a)
     navigate.navigate(b, "StepTwo")
     assert state == ["StepZero", "StepOne", "StepTwo"]
 
 
-def test_navigation_to_class() -> None:
-    del state[:]
+def test_navigation_to_class(clear_state) -> None:
     a = ObjectA
     b = ObjectB(ObjectA, a)
     navigate.navigate(b, "StepTwo")
     assert state == ["StepZero", "StepOne", "StepTwo"]
 
 
-def test_navigation_to_non_named_step() -> None:
-    del state[:]
+def test_navigation_to_non_named_step(clear_state) -> None:
     a = ObjectA
     b = ObjectB(ObjectA, a)
     navigate.navigate(b, "StepTwoAgain")
     assert state == ["StepZero", "StepOne", "StepTwoAgain"]
 
 
-def test_bad_step_exception() -> None:
-    del state[:]
+def test_bad_step_exception(clear_state) -> None:
     a = ObjectA
     b = ObjectB(ObjectA, a)
     with pytest.raises(NavigationDestinationNotFound):
@@ -170,8 +205,7 @@ def test_navigate_unknown() -> None:
         navigate.navigate("omg", "Wrong")
 
 
-def test_bad_step_multi() -> None:
-    del state[:]
+def test_bad_step_multi(clear_state) -> None:
     a = ObjectA
     b = ObjectB(ObjectA, a)
     with pytest.raises(NavigationDestinationNotFound):
@@ -202,8 +236,7 @@ def test_bad_object_exception() -> None:
             raise
 
 
-def test_bad_step() -> None:
-    del state[:]
+def test_bad_step(clear_state) -> None:
     a = ObjectA("ObjectA")
     with pytest.raises(NavigationTriesExceeded):
         try:
@@ -224,26 +257,30 @@ def test_no_nav() -> None:
     assert state == ["StepZero", "StepOne", "StepTwo"]
 
 
-def test_bad_am_i_here() -> None:
-    del state[:]
+def test_bad_am_i_here(clear_state) -> None:
     a = ObjectA
     navigate.navigate(a, "BadStepReturn")
 
 
 def test_list_destinations() -> None:
-    dests = navigate.list_destinations(ObjectA)
-    assert {"StepZero", "BadStepReturn", "BadStep", "StepOne", "StepZeroArgs"} == dests
+    assert {
+        "StepZero",
+        "BadStepReturn",
+        "BadStep",
+        "StepOne",
+        "StepZeroArgs",
+        "IncludeResetter",
+        "NeverHere",
+    } == navigate.list_destinations(ObjectA)
 
 
-def test_navigate_to_object() -> None:
-    del state[:]
+def test_navigate_to_object(clear_state) -> None:
     b = ObjectB("a", "a")
     navigate.navigate(b, "NeedA")
     assert state == ["StepZero", "StepOne", "NeedA"]
 
 
-def test_navigate_wth_args() -> None:
-    del state[:]
+def test_navigate_wth_args(clear_state) -> None:
     a = ObjectA
     args = (1, 2, 3)
     kwargs = {"a": "A", "b": "B"}
@@ -251,7 +288,60 @@ def test_navigate_wth_args() -> None:
     assert a.margs == args
 
 
-def test_get_name() -> None:
+@pytest.mark.parametrize("nav_args", [(), (1, 2)], ids=["no_args", "with_args"])
+def test_navigate_resetter_control(clear_state, nav_args) -> None:
+    """Test control of the resetter method calling via use_resetter kwarg"""
     a = ObjectA
-    nav = navigate.get_class(a, "BadStep")
-    assert nav == BadStep
+    navigate.navigate(a, "IncludeResetter", *nav_args)
+    assert state == ["StepZero", "IncludeResetter", "ResetterUsed"]
+    assert a.margs == nav_args
+
+    # clear state again
+    del state[:]
+    assert state == []
+
+    # new object to clear margs
+    a = ObjectA
+    navigate.navigate(a, "IncludeResetter", *nav_args, use_resetter=False)
+    # resetterused should not be in the state
+    assert state == ["StepZero", "IncludeResetter"]
+    assert a.margs == nav_args
+
+
+@pytest.mark.parametrize(
+    "wait_for_kwarg",
+    [dict(), dict(wait_for_view=None), dict(wait_for_view=0)],
+    ids=["wait_default", "wait_none", "wait_zero"],
+)
+def test_navigate_wait_control_no_wait(clear_state, wait_for_kwarg) -> None:
+    """Test control of waiting for am_i_here after navigation via wait_for_view kwarg"""
+    a = ObjectA
+    # NeverHere.am_i_here returns false and will cause exception if wait_for is called
+    navigate.navigate(a, "NeverHere", **wait_for_kwarg)
+    assert state == ["StepZero", "NeverHere"]
+
+
+@pytest.mark.parametrize(
+    "wait_for_kwarg",
+    [
+        dict(wait_for_view=2),
+        dict(wait_for_view="2s"),
+    ],
+    ids=["wait_int", "wait_str"],
+)
+@pytest.mark.parametrize(
+    "destination, raises",
+    [("NeverHere", True), ("StepZero", False)],
+    ids=["NeverHere_raises", "StepZero_no_raise"],
+)
+def test_navigate_wait_control_wait(
+    clear_state, wait_for_kwarg, destination, raises
+) -> None:
+    """Test control of waiting for am_i_here after navigation via wait_for_view kwarg"""
+    a = ObjectA
+    if raises:
+        with pytest.raises(TimedOutError):
+            navigate.navigate(a, destination, **wait_for_kwarg)
+    else:
+        navigate.navigate(a, destination, **wait_for_kwarg)
+        assert state == ["StepZero"]

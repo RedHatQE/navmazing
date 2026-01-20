@@ -7,6 +7,8 @@ from . import _navigator
 from ._errors import NavigationTriesExceeded
 from ._logging import null_logger as _null_logger
 
+from wait_for import wait_for
+
 
 class NavigateStep:
     """A Navigation Step object
@@ -76,13 +78,26 @@ class NavigateStep:
         """
         return
 
-    def do_nav(self, _tries: int, *args: object, **kwargs: object) -> None:
+    def do_nav(
+        self,
+        _tries: int,
+        *args: object,
+        use_resetter: bool = True,
+        wait_for_view: bool | int | str = None,
+        **kwargs: object,
+    ) -> None:
         """Describes how the navigation should take place."""
         try:
             self.step(*args, **kwargs)
         except Exception as e:
             self.logger.error(f"NAVIGATE: Got an error {e}")
-            self.go(_tries, *args, **kwargs)
+            self.go(
+                _tries,
+                use_resetter=use_resetter,
+                wait_for_view=wait_for_view,
+                *args,
+                **kwargs,
+            )
 
     def pre_navigate(self, _tries: int, *args: object, **kwargs: object) -> None:
         """steps  before any prerequisite or navigation
@@ -103,8 +118,24 @@ class NavigateStep:
         """
         return
 
-    def go(self, _tries: int = 0, *args: object, **kwargs: object) -> object:
-        """Describes the flow of navigation."""
+    def go(
+        self,
+        _tries: int = 0,
+        *args: object,
+        use_resetter: bool = True,
+        wait_for_view: bool | int | str = None,
+        **kwargs: object,
+    ) -> object:
+        """Describes the flow of navigation.
+
+        Optional kwargs:
+            use_resetter: boolean control over resetter function call (default True)
+            wait_for_view: control over am_i_here function call (default False)
+                Pass a value for duration of wait_for loop (str or int)
+
+        Raises:
+            wait_for.TimedOutError if wait_for_view is passed and am_i_here is false
+        """
         _tries += 1
         self.pre_navigate(_tries, *args, **kwargs)
         self.logger.info(f"NAVIGATE: Checking if already at {self._name}")
@@ -123,7 +154,26 @@ class NavigateStep:
             self.logger.info(f"NAVIGATE: I'm not at {self._name}")
             self.parent = self.prerequisite(*args, **kwargs)
             self.logger.info(f"NAVIGATE: Heading to destination {self._name}")
-            self.do_nav(_tries, *args, **kwargs)
-        self.resetter(*args, **kwargs)
+            self.do_nav(
+                _tries,
+                use_resetter=use_resetter,
+                wait_for_view=wait_for_view,
+                *args,
+                **kwargs,
+            )
+        if use_resetter:
+            self.logger.info(f"NAVIGATE: Resetting view at {self._name}")
+            self.resetter(*args, **kwargs)
+
         self.post_navigate(_tries, *args, **kwargs)
+
+        if wait_for_view not in [None, 0]:
+            self.logger.info(f"NAVIGATE: Waiting for am_i_here for {self._name}")
+            wait_for(
+                self.am_i_here,
+                func_args=args,
+                func_kwargs=kwargs,
+                logger=self.logger,
+                timeout=wait_for_view,
+            )
         return None
